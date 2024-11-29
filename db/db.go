@@ -8,9 +8,21 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func ConnectToDB() (*mongo.Client, error) {
+type DBClient struct {
+	PostgresGormDB *gorm.DB
+	MongoDB        *mongo.Client
+}
+
+func ConnectToDB() (*DBClient, error) {
+	// return connectToMongoDB()
+	return connectToPostgres()
+}
+
+func connectToMongoDB() (*DBClient, error) {
 	/// Get the database connection string
 	username := os.Getenv("MONGODB_USERNAME")
 	password := os.Getenv("MONGODB_PASSWORD")
@@ -28,5 +40,19 @@ func ConnectToDB() (*mongo.Client, error) {
 		return nil, err
 	}
 	log.Printf("Connected to mongodb successfully..")
-	return client, nil
+	return &DBClient{
+		MongoDB: client,
+	}, nil
+}
+
+func connectToPostgres() (*DBClient, error) {
+	dsn := "host=localhost user=postgres password=yourpassword dbname=mydatabase port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &DBClient{
+		PostgresGormDB: db,
+	}, nil
 }
