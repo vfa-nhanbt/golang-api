@@ -15,3 +15,7 @@ type UserModel struct {
 	PasswordHash string     `db:"password_hash" json:"password_hash,omitempty" validate:"required,lte=255"`
 	UserRole     string     `db:"user_role" json:"user_role" validate:"required,lte=25"`
 }
+
+func (*UserModel) TableName() string {
+	return "user_models"
+}

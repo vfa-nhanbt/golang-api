@@ -56,7 +56,7 @@ func generateTokenForUser(c *fiber.Ctx) error {
 	}
 
 	res := repositories.BaseResponse{
-		Code:      200,
+		Code:      "s-001",
 		IsSuccess: true,
 		Data:      token,
 	}

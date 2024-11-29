@@ -8,7 +8,7 @@ import (
 )
 
 type BaseResponse struct {
-	Code      int         `json:"code"`
+	Code      string      `json:"code"`
 	IsSuccess bool        `json:"is_success"`
 	Data      interface{} `json:"data"`
 }

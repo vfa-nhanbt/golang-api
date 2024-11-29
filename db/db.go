@@ -2,10 +2,12 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
 
+	"github.com/vfa-nhanbt/todo-api/app/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/postgres"
@@ -46,7 +48,14 @@ func connectToMongoDB() (*DBClient, error) {
 }
 
 func connectToPostgres() (*DBClient, error) {
-	dsn := "host=localhost user=postgres password=yourpassword dbname=mydatabase port=5432 sslmode=disable"
+	/// Get the database connection settings from env
+	host := os.Getenv("POSTGRES_HOST")
+	username := os.Getenv("POSTGRES_USERNAME")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	port := os.Getenv("POSTGRES_PORT")
+	dbname := os.Getenv("POSTGRES_NAME")
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos", host, username, password, dbname, port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
@@ -55,4 +64,12 @@ func connectToPostgres() (*DBClient, error) {
 	return &DBClient{
 		PostgresGormDB: db,
 	}, nil
+}
+
+func PostgresAutoMigrate(db *gorm.DB) error {
+	err := db.AutoMigrate(&models.UserModel{})
+	if err != nil {
+		return fmt.Errorf("cannot migrate table user_models with error: %v", err)
+	}
+	return nil
 }

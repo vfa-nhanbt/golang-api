@@ -49,6 +49,9 @@ func main() {
 	/// Create Controllers
 	controllers.InitControllers(dbClient)
 
+	/// Auto migrate db
+	db.PostgresAutoMigrate(dbClient.PostgresGormDB)
+
 	/// Config router
 	routes.PublicRoutes(app)
 	routes.PrivateRoutes(app)

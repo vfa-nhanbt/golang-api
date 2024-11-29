@@ -31,7 +31,7 @@ func handleJWTSuccess(c *fiber.Ctx, allowedRoles []string) error {
 
 	if !ok {
 		res := repository.BaseResponse{
-			Code:      fiber.StatusForbidden,
+			Code:      "e-003",
 			IsSuccess: false,
 			Data:      "cannot found roles from credentials",
 		}
@@ -46,7 +46,7 @@ func handleJWTSuccess(c *fiber.Ctx, allowedRoles []string) error {
 	}
 
 	res := repository.BaseResponse{
-		Code:      fiber.StatusForbidden,
+		Code:      "e-002",
 		IsSuccess: false,
 		Data:      "Access denied",
 	}
@@ -56,7 +56,7 @@ func handleJWTSuccess(c *fiber.Ctx, allowedRoles []string) error {
 func handleJWTError(c *fiber.Ctx, err error) error {
 	if err.Error() == "Missing or malformed JWT" {
 		res := &repository.BaseResponse{
-			Code:      fiber.StatusBadRequest,
+			Code:      "e-001",
 			IsSuccess: false,
 			Data:      err.Error(),
 		}
@@ -64,7 +64,7 @@ func handleJWTError(c *fiber.Ctx, err error) error {
 	}
 
 	res := &repository.BaseResponse{
-		Code:      fiber.StatusUnauthorized,
+		Code:      "e-002",
 		IsSuccess: false,
 		Data:      "Unauthorized! Error with msg: " + err.Error(),
 	}
