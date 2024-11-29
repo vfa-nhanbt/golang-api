@@ -32,11 +32,13 @@ func main() {
 	}
 
 	/// Connect to DB
-	mongoClient, err := db.ConnectToDB()
+	dbClient, err := db.ConnectToDB()
 	if err != nil {
 		log.Panic("Failed to connect to DB")
 	}
-	defer mongoClient.Disconnect(context.Background())
+	if dbClient.MongoDB != nil {
+		defer dbClient.MongoDB.Disconnect(context.Background())
+	}
 
 	/// Define Fiber App
 	app, err := startSever()
@@ -45,7 +47,10 @@ func main() {
 	}
 
 	/// Create Controllers
-	controllers.InitControllers(mongoClient)
+	controllers.InitControllers(dbClient)
+
+	/// Auto migrate db
+	db.PostgresAutoMigrate(dbClient.PostgresGormDB)
 
 	/// Config router
 	routes.PublicRoutes(app)

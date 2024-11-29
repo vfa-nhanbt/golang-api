@@ -2,15 +2,29 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
 
+	"github.com/vfa-nhanbt/todo-api/app/models"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func ConnectToDB() (*mongo.Client, error) {
+type DBClient struct {
+	PostgresGormDB *gorm.DB
+	MongoDB        *mongo.Client
+}
+
+func ConnectToDB() (*DBClient, error) {
+	// return connectToMongoDB()
+	return connectToPostgres()
+}
+
+func connectToMongoDB() (*DBClient, error) {
 	/// Get the database connection string
 	username := os.Getenv("MONGODB_USERNAME")
 	password := os.Getenv("MONGODB_PASSWORD")
@@ -28,5 +42,34 @@ func ConnectToDB() (*mongo.Client, error) {
 		return nil, err
 	}
 	log.Printf("Connected to mongodb successfully..")
-	return client, nil
+	return &DBClient{
+		MongoDB: client,
+	}, nil
+}
+
+func connectToPostgres() (*DBClient, error) {
+	/// Get the database connection settings from env
+	host := os.Getenv("POSTGRES_HOST")
+	username := os.Getenv("POSTGRES_USERNAME")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	port := os.Getenv("POSTGRES_PORT")
+	dbname := os.Getenv("POSTGRES_NAME")
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos", host, username, password, dbname, port)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &DBClient{
+		PostgresGormDB: db,
+	}, nil
+}
+
+func PostgresAutoMigrate(db *gorm.DB) error {
+	err := db.AutoMigrate(&models.UserModel{})
+	if err != nil {
+		return fmt.Errorf("cannot migrate table user_models with error: %v", err)
+	}
+	return nil
 }

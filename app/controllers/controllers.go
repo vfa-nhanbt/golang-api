@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"os"
-
+	"github.com/vfa-nhanbt/todo-api/db"
 	"github.com/vfa-nhanbt/todo-api/db/repositories"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var authController *AuthController
@@ -13,14 +11,15 @@ func GetAuthController() *AuthController {
 	return authController
 }
 
-func InitControllers(client *mongo.Client) {
-	db := os.Getenv("MONGODB_DATABASE")
-	mongoDB := client.Database(db)
+func InitControllers(db *db.DBClient) {
+	// mongo := os.Getenv("MONGODB_DATABASE")
+	// mongoDB := db.MongoDB.Database(mongo)
 
 	/// Init auth controller
 	authRepo := &repositories.UserRepository{
-		MongoCollection: mongoDB.Collection("users"),
+		DB: db.PostgresGormDB,
 	}
+
 	authController = &AuthController{
 		Repository: authRepo,
 	}

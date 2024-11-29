@@ -21,7 +21,7 @@ func PrivateRoutes(a *fiber.App) {
 
 func checkAdmin(c *fiber.Ctx) error {
 	res := repositories.BaseResponse{
-		Code:      200,
+		Code:      "s-001",
 		IsSuccess: true,
 		Data:      "is admin",
 	}
@@ -30,7 +30,7 @@ func checkAdmin(c *fiber.Ctx) error {
 
 func checkUser(c *fiber.Ctx) error {
 	res := repositories.BaseResponse{
-		Code:      200,
+		Code:      "s-001",
 		IsSuccess: true,
 		Data:      "is user",
 	}
@@ -39,7 +39,7 @@ func checkUser(c *fiber.Ctx) error {
 
 func checkBoth(c *fiber.Ctx) error {
 	res := repositories.BaseResponse{
-		Code:      200,
+		Code:      "s-001",
 		IsSuccess: true,
 		Data:      "is admin and user",
 	}
