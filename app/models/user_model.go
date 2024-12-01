@@ -13,7 +13,7 @@ type UserModel struct {
 	Email        string     `gorm:"size:255;uniqueIndex" db:"email" json:"email" validate:"required,email,lte=255"`
 	Name         string     `db:"name" json:"name" validate:"required"`
 	PasswordHash string     `db:"password_hash" json:"password_hash,omitempty" validate:"required,lte=255"`
-	UserRole     string     `db:"user_role" json:"user_role" validate:"required,lte=25"`
+	UserRole     string     `db:"user_role" json:"user_role" validate:"required,userRole,lte=25"`
 }
 
 func (*UserModel) TableName() string {

@@ -8,7 +8,7 @@ import (
 
 func ValidateRole(role string) error {
 	switch role {
-	case constants.RoleAdmin, constants.RoleUser:
+	case constants.RoleAdmin, constants.RoleViewer, constants.RoleAuthor:
 		return nil
 	default:
 		return fmt.Errorf("invalid role %s", role)

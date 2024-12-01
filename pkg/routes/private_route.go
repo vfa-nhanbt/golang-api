@@ -13,9 +13,9 @@ func PrivateRoutes(a *fiber.App) {
 	route := a.Group("/api/v1")
 
 	// Routes for POST method:
-	route.Get("/admin", middleware.JWTProtected([]string{constant.RoleAdmin}), checkAdmin)
-	route.Get("/user", middleware.JWTProtected([]string{constant.RoleUser}), checkUser)
-	route.Get("/both", middleware.JWTProtected([]string{constant.RoleAdmin, constant.RoleUser}), checkBoth)
+	route.Get("/access-check/admin", middleware.JWTProtected([]string{constant.RoleAdmin}), checkAdmin)
+	route.Get("/access-check/user", middleware.JWTProtected([]string{constant.RoleViewer}), checkUser)
+	route.Get("/access-check/all", middleware.JWTProtected([]string{constant.RoleAdmin, constant.RoleViewer, constant.RoleAdmin}), checkAll)
 
 }
 
@@ -37,7 +37,7 @@ func checkUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(res.ToMap())
 }
 
-func checkBoth(c *fiber.Ctx) error {
+func checkAll(c *fiber.Ctx) error {
 	res := repositories.BaseResponse{
 		Code:      "s-001",
 		IsSuccess: true,
