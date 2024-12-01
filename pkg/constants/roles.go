@@ -1,6 +1,11 @@
 package constants
 
 const (
-	RoleUser  = "user"
-	RoleAdmin = "admin"
+	RoleAdmin  = "admin"
+	RoleAuthor = "author"
+	RoleViewer = "viewer"
 )
+
+func GetRoles() []string {
+	return []string{RoleAdmin, RoleAuthor, RoleViewer}
+}

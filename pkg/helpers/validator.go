@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 
+	"github.com/vfa-nhanbt/todo-api/pkg/constants"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
 )
 
@@ -22,6 +23,8 @@ func newValidator() *validator.Validate {
 	})
 	/// Register password validation
 	validate.RegisterValidation("password", passwordValidator)
+	/// Register user role validation
+	validate.RegisterValidation("userRole", userRoleValidator)
 	return validate
 }
 
@@ -76,4 +79,15 @@ func passwordValidator(fl validator.FieldLevel) bool {
 	}
 
 	return hasLower && hasUpper && hasDigit && hasSpecial
+}
+
+func userRoleValidator(fl validator.FieldLevel) bool {
+	role := fl.Field().String()
+	allowedRoles := constants.GetRoles()
+	for _, allowedRole := range allowedRoles {
+		if strings.EqualFold(allowedRole, role) {
+			return true
+		}
+	}
+	return false
 }
