@@ -67,9 +67,18 @@ func connectToPostgres() (*DBClient, error) {
 }
 
 func PostgresAutoMigrate(db *gorm.DB) error {
-	err := db.AutoMigrate(&models.UserModel{})
+	err := db.AutoMigrate(
+		/// Migrate user models
+		&models.UserModel{},
+		/// Migrate admin models
+		&models.AdminModel{},
+		/// Migrate author models
+		&models.AuthorModel{},
+		/// Migrate viewer models
+		&models.ViewerModel{},
+	)
 	if err != nil {
-		return fmt.Errorf("cannot migrate table user_models with error: %v", err)
+		return fmt.Errorf("cannot migrate table with error: %v", err)
 	}
 	return nil
 }

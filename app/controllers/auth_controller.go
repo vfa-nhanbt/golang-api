@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/vfa-nhanbt/todo-api/app/models"
 	dbRepo "github.com/vfa-nhanbt/todo-api/db/repositories"
+	"github.com/vfa-nhanbt/todo-api/pkg/constants"
 	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
 )
@@ -58,10 +59,40 @@ func (controller *AuthController) SignUpHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(res.ToMap())
 	}
 
+	switch userModel.UserRole {
+	case constants.RoleAdmin:
+		err = controller.Repository.InsertAdmin(&models.AdminModel{
+			UserModel: userModel,
+			UserID:    userModel.ID,
+		})
+	case constants.RoleAuthor:
+		err = controller.Repository.InsertAuthor(&models.AuthorModel{
+			UserModel: userModel,
+			UserID:    userModel.ID,
+			Books:     []models.BookModel{},
+		})
+	case constants.RoleViewer:
+		err = controller.Repository.InsertViewer(&models.ViewerModel{
+			UserModel:       userModel,
+			UserID:          userModel.ID,
+			FollowedAuthors: []models.AuthorModel{},
+		})
+	default:
+		err = fmt.Errorf("unknown user role: %s", userModel.UserRole)
+	}
+	if err != nil {
+		res := pkgRepo.BaseResponse{
+			Code:      "e-signup-002",
+			IsSuccess: false,
+			Data:      "Cannot insert user record to table with error: " + err.Error(),
+		}
+		return c.Status(fiber.StatusBadRequest).JSON(res.ToMap())
+	}
+
 	res := pkgRepo.BaseResponse{
 		Code:      "s-signup-001",
 		IsSuccess: true,
-		Data:      fmt.Sprintf("Insert user record successfully! UserID: %s", userModel.ID),
+		Data:      fmt.Sprintf("Insert user record successfully! UserID: %d", userModel.ID),
 	}
 	return c.Status(fiber.StatusOK).JSON(res.ToMap())
 }
@@ -102,11 +133,36 @@ func (controller *AuthController) SignInHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
-
 	res := pkgRepo.BaseResponse{
 		Code:      "s-signup-001",
 		IsSuccess: true,
 		Data:      map[string]interface{}{"token": token, "user": userFromDB},
 	}
+
+	/// Load additional information for different type of users
+	switch userFromDB.UserRole {
+	case constants.RoleAdmin:
+		admin, err := controller.Repository.FindAdminByEmail(userFromDB.Email)
+		if err != nil {
+			fmt.Printf("Cannot load admin followed admins with error: %v", err)
+		} else {
+			res.Data = map[string]interface{}{"token": token, "admin": admin}
+		}
+	case constants.RoleAuthor:
+		author, err := controller.Repository.FindAuthorByEmail(userFromDB.Email)
+		if err != nil {
+			fmt.Printf("Cannot load author followed authors with error: %v", err)
+		} else {
+			res.Data = map[string]interface{}{"token": token, "author": author}
+		}
+	case constants.RoleViewer:
+		viewer, err := controller.Repository.FindViewerByEmail(userFromDB.Email)
+		if err != nil {
+			fmt.Printf("Cannot load viewer followed authors with error: %v", err)
+		} else {
+			res.Data = map[string]interface{}{"token": token, "viewer": viewer}
+		}
+	}
+
 	return c.Status(fiber.StatusOK).JSON(res.ToMap())
 }

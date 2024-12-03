@@ -19,3 +19,32 @@ type UserModel struct {
 func (*UserModel) TableName() string {
 	return "user_models"
 }
+
+type AdminModel struct {
+	UserID uuid.UUID `gorm:"type:uuid;unique,primaryKey" db:"user_id" json:"user_id" validate:"required"`
+	*UserModel
+}
+
+func (*AdminModel) TableName() string {
+	return "admin_models"
+}
+
+type AuthorModel struct {
+	UserID uuid.UUID `gorm:"type:uuid;unique,primaryKey" db:"user_id" json:"user_id" validate:"required"`
+	*UserModel
+	Books []BookModel `gorm:"foreignKey:AuthorID;references:UserID"`
+}
+
+func (*AuthorModel) TableName() string {
+	return "author_models"
+}
+
+type ViewerModel struct {
+	UserID uuid.UUID `gorm:"type:uuid;unique,primaryKey" db:"user_id" json:"user_id" validate:"required"`
+	*UserModel
+	FollowedAuthors []AuthorModel `gorm:"many2many:followed_authors"`
+}
+
+func (*ViewerModel) TableName() string {
+	return "viewer_models"
+}
