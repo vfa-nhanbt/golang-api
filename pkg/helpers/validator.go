@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/vfa-nhanbt/todo-api/pkg/constants"
-	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
 )
 
 func newValidator() *validator.Validate {
@@ -38,12 +37,12 @@ func ValidatorErrors(err error) map[string]string {
 
 func ValidateRequestBody(body interface{}, c *fiber.Ctx) error {
 	if err := c.BodyParser(body); err != nil {
-		return pkgRepo.BaseErrorResponse(c, err)
+		return err
 	}
 	/// Validate body
 	validate := newValidator()
 	if err := validate.Struct(body); err != nil {
-		return pkgRepo.BaseErrorResponse(c, err)
+		return err
 	}
 	return nil
 }

@@ -29,9 +29,10 @@ func (r *BaseResponse) ToMap() map[string]interface{} {
 }
 
 func BaseErrorResponse(c *fiber.Ctx, err error) error {
-	// Return status 400 and error message.
-	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-		"error": true,
-		"msg":   err.Error(),
-	})
+	res := BaseResponse{
+		Code:      "-1",
+		IsSuccess: false,
+		Data:      err.Error(),
+	}
+	return c.Status(fiber.StatusBadRequest).JSON(res.ToMap())
 }

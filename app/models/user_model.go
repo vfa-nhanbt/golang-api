@@ -32,7 +32,7 @@ func (*AdminModel) TableName() string {
 type AuthorModel struct {
 	UserID uuid.UUID `gorm:"type:uuid;unique,primaryKey" db:"user_id" json:"user_id" validate:"required"`
 	*UserModel
-	Books []BookModel `gorm:"foreignKey:AuthorID;references:UserID"`
+	Books []BookModel `gorm:"foreignKey:AuthorID;references:ID"`
 }
 
 func (*AuthorModel) TableName() string {
@@ -43,6 +43,8 @@ type ViewerModel struct {
 	UserID uuid.UUID `gorm:"type:uuid;unique,primaryKey" db:"user_id" json:"user_id" validate:"required"`
 	*UserModel
 	FollowedAuthors []AuthorModel `gorm:"many2many:followed_authors"`
+	PaidBooks       []BookModel   `gorm:"many2many:paid_books"`
+	Reviews         []ReviewModel `gorm:"foreignKey:AuthorID"`
 }
 
 func (*ViewerModel) TableName() string {

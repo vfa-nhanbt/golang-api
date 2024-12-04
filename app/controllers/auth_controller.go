@@ -20,7 +20,10 @@ func (controller *AuthController) SignUpHandler(c *fiber.Ctx) error {
 	signUpBody := &models.SignUpModel{}
 
 	/// Validate request body
-	helpers.ValidateRequestBody(signUpBody, c)
+	err := helpers.ValidateRequestBody(signUpBody, c)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
 
 	/// Validate registered role
 	if err := helpers.ValidateRole(signUpBody.Role); err != nil {
@@ -41,7 +44,7 @@ func (controller *AuthController) SignUpHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusConflict).JSON(res.ToMap())
 	}
 
-	/// TODO: Insert account to DB
+	/// Insert account to DB
 	userModel := &models.UserModel{
 		ID:           uuid.New(),
 		Email:        signUpBody.Email,
@@ -101,7 +104,10 @@ func (controller *AuthController) SignInHandler(c *fiber.Ctx) error {
 	signInBody := &models.SignInModel{}
 
 	/// Validate request body
-	helpers.ValidateRequestBody(signInBody, c)
+	err := helpers.ValidateRequestBody(signInBody, c)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
 
 	/// Check if account has already created
 	userFromDB, err := controller.Repository.FindUserByEmail(signInBody.Email)

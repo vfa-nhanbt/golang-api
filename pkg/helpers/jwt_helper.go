@@ -111,3 +111,13 @@ func verifyToken(c *fiber.Ctx) (*jwt.Token, error) {
 }
 
 // ----- Read block end -----
+func GetUserIdFromToken(c *fiber.Ctx) (string, error) {
+	userToken := c.Locals("jwt").(*jwt.Token)
+	claims := userToken.Claims.(jwt.MapClaims)
+	userId, ok := claims["user_id"].(string)
+
+	if !ok {
+		return "", fmt.Errorf("cannot get user_id from token")
+	}
+	return userId, nil
+}
