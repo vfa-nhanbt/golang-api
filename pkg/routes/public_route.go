@@ -30,6 +30,10 @@ func PublicRoutes(a *fiber.App) {
 	route.Post("/auth/sign-up", controllers.GetAuthController().SignUpHandler)
 	route.Post("/auth/sign-in", controllers.GetAuthController().SignInHandler)
 	// route.Post("/test/add-followed-author", controllers.GetAuthController().AddFollowedAuthor)
+
+	/// Book Route
+	route.Get("/book/get-all", controllers.GetBookController().GetAllBooks)
+	route.Get("/book/get/:id", controllers.GetBookController().GetBookByID)
 }
 
 type UserRequestToken struct {

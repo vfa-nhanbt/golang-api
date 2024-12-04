@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 
@@ -24,6 +25,8 @@ func newValidator() *validator.Validate {
 	validate.RegisterValidation("password", passwordValidator)
 	/// Register user role validation
 	validate.RegisterValidation("userRole", userRoleValidator)
+	/// Register price validation
+	validate.RegisterValidation("updatePrice", updatePriceValidator)
 	return validate
 }
 
@@ -87,6 +90,17 @@ func userRoleValidator(fl validator.FieldLevel) bool {
 		if strings.EqualFold(allowedRole, role) {
 			return true
 		}
+	}
+	return false
+}
+
+func updatePriceValidator(fl validator.FieldLevel) bool {
+	fmt.Print(fl.Field())
+	if fl.Field().IsNil() {
+		return true
+	}
+	if price := fl.Field().Int(); price >= 0 {
+		return true
 	}
 	return false
 }

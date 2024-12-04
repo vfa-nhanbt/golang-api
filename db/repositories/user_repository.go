@@ -36,7 +36,7 @@ func (r *UserRepository) FindUserByEmail(email string) (*models.UserModel, error
 // / ----- Admin -----
 func (r *UserRepository) FindUserByID(id string) (*models.AdminModel, error) {
 	adminModel := models.AdminModel{}
-	err := r.DB.First(&adminModel, id).Find(&adminModel).Error
+	err := r.DB.First(&adminModel, "id = ?", id).Find(&adminModel).Error
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (r *UserRepository) InsertAdmin(user *models.AdminModel) error {
 // / ----- Author -----
 func (r *UserRepository) FindAuthorByID(id string) (*models.AuthorModel, error) {
 	authorModel := models.AuthorModel{}
-	err := r.DB.First(&authorModel, id).Preload("Books").Find(&authorModel).Error
+	err := r.DB.First(&authorModel, "id = ?", id).Preload("Books").Find(&authorModel).Error
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (r *UserRepository) InsertAuthor(user *models.AuthorModel) error {
 // / ----- Viewer -----
 func (r *UserRepository) FindViewerByID(id string) (*models.ViewerModel, error) {
 	viewerModel := models.ViewerModel{}
-	err := r.DB.First(&viewerModel, id).Preload("FollowedAuthors").Find(&viewerModel).Error
+	err := r.DB.First(&viewerModel, "id = ?", id).Preload("FollowedAuthors").Find(&viewerModel).Error
 	if err != nil {
 		return nil, err
 	}

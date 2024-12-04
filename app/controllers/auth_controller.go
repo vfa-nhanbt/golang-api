@@ -75,10 +75,28 @@ func (controller *AuthController) SignUpHandler(c *fiber.Ctx) error {
 			Books:     []models.BookModel{},
 		})
 	case constants.RoleViewer:
+		uuidAuthor1, err1 := uuid.Parse("2fded70c-947a-4ee4-bbcd-545f42d27027")
+		uuidAuthor2, err2 := uuid.Parse("832bded9-ede0-48e0-aff3-c7ed78317c44")
+		if err1 != nil || err2 != nil {
+			fmt.Printf("parsing uuid err : %v", err)
+		}
 		err = controller.Repository.InsertViewer(&models.ViewerModel{
-			UserModel:       userModel,
-			UserID:          userModel.ID,
-			FollowedAuthors: []models.AuthorModel{},
+			UserModel: userModel,
+			UserID:    userModel.ID,
+			FollowedAuthors: []models.AuthorModel{
+				{
+					UserID: uuidAuthor1,
+					UserModel: &models.UserModel{
+						ID: uuidAuthor1,
+					},
+				},
+				{
+					UserID: uuidAuthor2,
+					UserModel: &models.UserModel{
+						ID: uuidAuthor2,
+					},
+				},
+			},
 		})
 	default:
 		err = fmt.Errorf("unknown user role: %s", userModel.UserRole)
@@ -95,7 +113,7 @@ func (controller *AuthController) SignUpHandler(c *fiber.Ctx) error {
 	res := pkgRepo.BaseResponse{
 		Code:      "s-signup-001",
 		IsSuccess: true,
-		Data:      fmt.Sprintf("Insert user record successfully! UserID: %d", userModel.ID),
+		Data:      fmt.Sprintf("Insert user record successfully! UserID: %s", userModel.ID),
 	}
 	return c.Status(fiber.StatusOK).JSON(res.ToMap())
 }

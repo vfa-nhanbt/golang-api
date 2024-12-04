@@ -2,6 +2,8 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/vfa-nhanbt/todo-api/app/controllers"
+
 	constant "github.com/vfa-nhanbt/todo-api/pkg/constants"
 	middleware "github.com/vfa-nhanbt/todo-api/pkg/middleware"
 	"github.com/vfa-nhanbt/todo-api/pkg/repositories"
@@ -17,6 +19,10 @@ func PrivateRoutes(a *fiber.App) {
 	route.Get("/access-check/user", middleware.JWTProtected([]string{constant.RoleViewer}), checkUser)
 	route.Get("/access-check/all", middleware.JWTProtected([]string{constant.RoleAdmin, constant.RoleViewer, constant.RoleAdmin}), checkAll)
 
+	/// Route for book api:
+	route.Post("/book/create", middleware.JWTProtected([]string{constant.RoleAuthor}), controllers.GetBookController().AddBookHandler)
+	route.Get("/book/delete/:id", middleware.JWTProtected([]string{constant.RoleAuthor, constant.RoleAdmin}), controllers.GetBookController().AddBookHandler)
+	route.Post("/book/update/:id", middleware.JWTProtected([]string{constant.RoleAuthor}), controllers.GetBookController().UpdateBook)
 }
 
 func checkAdmin(c *fiber.Ctx) error {

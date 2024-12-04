@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/vfa-nhanbt/todo-api/app/models"
 	"github.com/vfa-nhanbt/todo-api/db/repositories"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
@@ -13,13 +14,43 @@ type BookController struct {
 	Repository *repositories.BookRepository
 }
 
+type CreateBookRequest struct {
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Price       int    `json:"price"`
+}
+
 func (controller *BookController) AddBookHandler(c *fiber.Ctx) error {
-	bookModel := &models.BookModel{}
+	createBookRequest := &CreateBookRequest{}
 
 	/// Validate request body
-	err := helpers.ValidateRequestBody(bookModel, c)
+	err := helpers.ValidateRequestBody(createBookRequest, c)
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
+	}
+
+	bookModel := &models.BookModel{
+		ID:          uuid.New(),
+		Title:       createBookRequest.Title,
+		Description: createBookRequest.Description,
+		Price:       createBookRequest.Price,
+	}
+
+	/// Set author for this book
+	userId, err := helpers.GetUserIdFromToken(c)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+	userUUID, err := uuid.Parse(userId)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+	bookModel.AuthorID = userUUID
+	bookModel.Author = models.AuthorModel{
+		UserID: userUUID,
+		UserModel: &models.UserModel{
+			ID: userUUID,
+		},
 	}
 
 	/// Insert book to DB
@@ -28,7 +59,7 @@ func (controller *BookController) AddBookHandler(c *fiber.Ctx) error {
 		res := pkgRepo.BaseResponse{
 			Code:      "e-book-001",
 			IsSuccess: false,
-			Data:      "Cannot insert user record to table with error: " + err.Error(),
+			Data:      "Cannot insert book record to table with error: " + err.Error(),
 		}
 		return c.Status(fiber.StatusBadRequest).JSON(res.ToMap())
 	}
@@ -43,15 +74,7 @@ func (controller *BookController) AddBookHandler(c *fiber.Ctx) error {
 }
 
 func (controller *BookController) DeleteBookWithID(c *fiber.Ctx) error {
-	var deleteBookRequest struct {
-		BookId string `json:"book_id" validate:"required,uuid"`
-	}
-
-	/// Validate request body
-	err := helpers.ValidateRequestBody(deleteBookRequest, c)
-	if err != nil {
-		return pkgRepo.BaseErrorResponse(c, err)
-	}
+	bookId := c.Params("id")
 
 	/// Get current user id from token
 	userId, err := helpers.GetUserIdFromToken(c)
@@ -59,12 +82,13 @@ func (controller *BookController) DeleteBookWithID(c *fiber.Ctx) error {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
 
-	/// Check if user is author of this book
-	canDelete, err := controller.Repository.CheckIsAuthor(userId, deleteBookRequest.BookId)
+	/// Find book from DB
+	bookFromDB, err := controller.Repository.GetBookByID(c.Params("id"))
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
-	if !canDelete {
+	/// Check if user is author of this book
+	if bookFromDB.AuthorID.String() != userId {
 		res := pkgRepo.BaseResponse{
 			Code:      "e-book-001",
 			IsSuccess: false,
@@ -74,7 +98,7 @@ func (controller *BookController) DeleteBookWithID(c *fiber.Ctx) error {
 	}
 
 	/// Delete book from DB
-	err = controller.Repository.DeleteBookWithID(deleteBookRequest.BookId)
+	err = controller.Repository.DeleteBookWithID(bookId)
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
@@ -89,10 +113,45 @@ func (controller *BookController) DeleteBookWithID(c *fiber.Ctx) error {
 }
 
 func (controller *BookController) UpdateBook(c *fiber.Ctx) error {
-	bookModel := &models.BookModel{}
+	// bookModel := &models.BookModel{}
 
+	// /// Get current user id from token
+	// userId, err := helpers.GetUserIdFromToken(c)
+	// if err != nil {
+	// 	return pkgRepo.BaseErrorResponse(c, err)
+	// }
+	// userUUID, err := uuid.Parse(userId)
+	// if err != nil {
+	// 	return pkgRepo.BaseErrorResponse(c, err)
+	// }
+	// bookModel.Author = models.AuthorModel{
+	// 	UserID: userUUID,
+	// 	UserModel: &models.UserModel{
+	// 		ID: userUUID,
+	// 	},
+	// }
+	// bookModel.AuthorID = userUUID
+	// bookUUID, err := uuid.Parse(c.Params("id"))
+	// if err != nil {
+	// 	return pkgRepo.BaseErrorResponse(c, err)
+	// }
+	// bookModel.ID = bookUUID
+
+	// /// Validate request body
+	// err = helpers.ValidateRequestBody(bookModel, c)
+	// if err != nil {
+	// 	return pkgRepo.BaseErrorResponse(c, err)
+	// }
+
+	// updateBookRequest := &CreateBookRequest{}
+	var updateBookRequest struct {
+		Title       *string `json:"title"`
+		Description *string `json:"description"`
+		Price       *int    `json:"price" validate:"updatePrice"`
+		helpers.StructHelper
+	}
 	/// Validate request body
-	err := helpers.ValidateRequestBody(bookModel, c)
+	err := helpers.ValidateRequestBody(&updateBookRequest, c)
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
@@ -103,12 +162,13 @@ func (controller *BookController) UpdateBook(c *fiber.Ctx) error {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
 
-	/// Check if user is author of this book
-	canUpdate, err := controller.Repository.CheckIsAuthor(userId, bookModel.ID.String())
+	/// Find book from DB
+	bookFromDB, err := controller.Repository.GetBookByID(c.Params("id"))
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
-	if !canUpdate {
+	/// Check if user is author of this book
+	if bookFromDB.AuthorID.String() != userId {
 		res := pkgRepo.BaseResponse{
 			Code:      "e-book-001",
 			IsSuccess: false,
@@ -118,7 +178,7 @@ func (controller *BookController) UpdateBook(c *fiber.Ctx) error {
 	}
 
 	/// Update book
-	err = controller.Repository.UpdateBook(bookModel)
+	err = controller.Repository.UpdateBook(bookFromDB, updateBookRequest.StructToUnNilMap(updateBookRequest))
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
@@ -127,7 +187,7 @@ func (controller *BookController) UpdateBook(c *fiber.Ctx) error {
 	res := pkgRepo.BaseResponse{
 		Code:      "s-book-001",
 		IsSuccess: true,
-		Data:      bookModel,
+		Data:      "update book successfully",
 	}
 	return c.Status(fiber.StatusOK).JSON(res.ToMap())
 }
@@ -147,16 +207,9 @@ func (controller *BookController) GetAllBooks(c *fiber.Ctx) error {
 }
 
 func (controller *BookController) GetBookByID(c *fiber.Ctx) error {
-	var getBookRequest struct {
-		BookID string `json:"book_id" validate:"required,uuid"`
-	}
+	bookID := c.Params("id")
 
-	err := helpers.ValidateRequestBody(getBookRequest, c)
-	if err != nil {
-		return pkgRepo.BaseErrorResponse(c, err)
-	}
-
-	books, err := controller.Repository.GetBookByID(getBookRequest.BookID)
+	books, err := controller.Repository.GetBookByID(bookID)
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}

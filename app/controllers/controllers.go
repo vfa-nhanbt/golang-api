@@ -6,9 +6,13 @@ import (
 )
 
 var authController *AuthController
+var bookController *BookController
 
 func GetAuthController() *AuthController {
 	return authController
+}
+func GetBookController() *BookController {
+	return bookController
 }
 
 func InitControllers(db *db.DBClient) {
@@ -20,7 +24,15 @@ func InitControllers(db *db.DBClient) {
 		DB: db.PostgresGormDB,
 	}
 
+	/// Init book controller
+	bookRepo := &repositories.BookRepository{
+		DB: db.PostgresGormDB,
+	}
+
 	authController = &AuthController{
 		Repository: authRepo,
+	}
+	bookController = &BookController{
+		Repository: bookRepo,
 	}
 }
