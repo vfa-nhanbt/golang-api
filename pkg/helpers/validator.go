@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/vfa-nhanbt/todo-api/pkg/constants"
-	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
 )
 
 func newValidator() *validator.Validate {
@@ -25,6 +25,8 @@ func newValidator() *validator.Validate {
 	validate.RegisterValidation("password", passwordValidator)
 	/// Register user role validation
 	validate.RegisterValidation("userRole", userRoleValidator)
+	/// Register price validation
+	validate.RegisterValidation("updatePrice", updatePriceValidator)
 	return validate
 }
 
@@ -38,12 +40,12 @@ func ValidatorErrors(err error) map[string]string {
 
 func ValidateRequestBody(body interface{}, c *fiber.Ctx) error {
 	if err := c.BodyParser(body); err != nil {
-		return pkgRepo.BaseErrorResponse(c, err)
+		return err
 	}
 	/// Validate body
 	validate := newValidator()
 	if err := validate.Struct(body); err != nil {
-		return pkgRepo.BaseErrorResponse(c, err)
+		return err
 	}
 	return nil
 }
@@ -88,6 +90,17 @@ func userRoleValidator(fl validator.FieldLevel) bool {
 		if strings.EqualFold(allowedRole, role) {
 			return true
 		}
+	}
+	return false
+}
+
+func updatePriceValidator(fl validator.FieldLevel) bool {
+	fmt.Print(fl.Field())
+	if fl.Field().IsNil() {
+		return true
+	}
+	if price := fl.Field().Int(); price >= 0 {
+		return true
 	}
 	return false
 }

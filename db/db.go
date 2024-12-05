@@ -56,7 +56,9 @@ func connectToPostgres() (*DBClient, error) {
 	dbname := os.Getenv("POSTGRES_NAME")
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos", host, username, password, dbname, port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		QueryFields: true,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -76,6 +78,10 @@ func PostgresAutoMigrate(db *gorm.DB) error {
 		&models.AuthorModel{},
 		/// Migrate viewer models
 		&models.ViewerModel{},
+		/// Migrate books models
+		&models.BookModel{},
+		/// Migrate review models
+		&models.ReviewModel{},
 	)
 	if err != nil {
 		return fmt.Errorf("cannot migrate table with error: %v", err)
