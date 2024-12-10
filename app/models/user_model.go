@@ -44,7 +44,7 @@ type ViewerModel struct {
 	*UserModel
 	FollowedAuthors []AuthorModel `gorm:"many2many:followed_authors"`
 	PaidBooks       []BookModel   `gorm:"many2many:paid_books"`
-	Reviews         []ReviewModel `gorm:"foreignKey:AuthorID"`
+	Reviews         []ReviewModel `gorm:"foreignKey:AuthorID;references:ID"`
 }
 
 func (*ViewerModel) TableName() string {

@@ -113,36 +113,6 @@ func (controller *BookController) DeleteBookWithID(c *fiber.Ctx) error {
 }
 
 func (controller *BookController) UpdateBook(c *fiber.Ctx) error {
-	// bookModel := &models.BookModel{}
-
-	// /// Get current user id from token
-	// userId, err := helpers.GetUserIdFromToken(c)
-	// if err != nil {
-	// 	return pkgRepo.BaseErrorResponse(c, err)
-	// }
-	// userUUID, err := uuid.Parse(userId)
-	// if err != nil {
-	// 	return pkgRepo.BaseErrorResponse(c, err)
-	// }
-	// bookModel.Author = models.AuthorModel{
-	// 	UserID: userUUID,
-	// 	UserModel: &models.UserModel{
-	// 		ID: userUUID,
-	// 	},
-	// }
-	// bookModel.AuthorID = userUUID
-	// bookUUID, err := uuid.Parse(c.Params("id"))
-	// if err != nil {
-	// 	return pkgRepo.BaseErrorResponse(c, err)
-	// }
-	// bookModel.ID = bookUUID
-
-	// /// Validate request body
-	// err = helpers.ValidateRequestBody(bookModel, c)
-	// if err != nil {
-	// 	return pkgRepo.BaseErrorResponse(c, err)
-	// }
-
 	// updateBookRequest := &CreateBookRequest{}
 	var updateBookRequest struct {
 		Title       *string `json:"title"`

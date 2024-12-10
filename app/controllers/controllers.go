@@ -7,6 +7,7 @@ import (
 
 var authController *AuthController
 var bookController *BookController
+var reviewController *ReviewController
 
 func GetAuthController() *AuthController {
 	return authController
@@ -14,18 +15,24 @@ func GetAuthController() *AuthController {
 func GetBookController() *BookController {
 	return bookController
 }
+func GetReviewController() *ReviewController {
+	return reviewController
+}
 
 func InitControllers(db *db.DBClient) {
 	// mongo := os.Getenv("MONGODB_DATABASE")
 	// mongoDB := db.MongoDB.Database(mongo)
 
-	/// Init auth controller
+	/// Init auth repository
 	authRepo := &repositories.UserRepository{
 		DB: db.PostgresGormDB,
 	}
-
-	/// Init book controller
+	/// Init book repository
 	bookRepo := &repositories.BookRepository{
+		DB: db.PostgresGormDB,
+	}
+	/// Init review repository
+	reviewRepo := &repositories.ReviewRepository{
 		DB: db.PostgresGormDB,
 	}
 
@@ -34,5 +41,8 @@ func InitControllers(db *db.DBClient) {
 	}
 	bookController = &BookController{
 		Repository: bookRepo,
+	}
+	reviewController = &ReviewController{
+		Repository: reviewRepo,
 	}
 }
