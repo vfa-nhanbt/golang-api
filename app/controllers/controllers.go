@@ -8,6 +8,7 @@ import (
 var authController *AuthController
 var bookController *BookController
 var reviewController *ReviewController
+var sendEmailController *SendEmailController
 
 func GetAuthController() *AuthController {
 	return authController
@@ -17,6 +18,9 @@ func GetBookController() *BookController {
 }
 func GetReviewController() *ReviewController {
 	return reviewController
+}
+func GetSendEmailController() *SendEmailController {
+	return sendEmailController
 }
 
 func InitControllers(db *db.DBClient) {
@@ -44,5 +48,8 @@ func InitControllers(db *db.DBClient) {
 	}
 	reviewController = &ReviewController{
 		Repository: reviewRepo,
+	}
+	sendEmailController = &SendEmailController{
+		Repository: &repositories.EmailRepository{},
 	}
 }

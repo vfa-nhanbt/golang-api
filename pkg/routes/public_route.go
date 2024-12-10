@@ -34,6 +34,9 @@ func PublicRoutes(a *fiber.App) {
 	/// Book Route
 	route.Get("/book/get-all", controllers.GetBookController().GetAllBooks)
 	route.Get("/book/get/:id", controllers.GetBookController().GetBookByID)
+
+	/// Send Email Route
+	route.Post("/email/send", controllers.GetSendEmailController().SendEmail)
 }
 
 type UserRequestToken struct {
