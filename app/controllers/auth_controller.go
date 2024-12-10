@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	dbRepo "github.com/vfa-nhanbt/todo-api/app/db/repositories"
 	"github.com/vfa-nhanbt/todo-api/app/models"
-	dbRepo "github.com/vfa-nhanbt/todo-api/db/repositories"
 	"github.com/vfa-nhanbt/todo-api/pkg/constants"
 	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"

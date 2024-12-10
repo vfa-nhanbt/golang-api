@@ -10,9 +10,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/lpernett/godotenv"
 	"github.com/vfa-nhanbt/todo-api/app/controllers"
-	"github.com/vfa-nhanbt/todo-api/db"
+	"github.com/vfa-nhanbt/todo-api/app/db"
 	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
 	"github.com/vfa-nhanbt/todo-api/pkg/routes"
+	firebase "github.com/vfa-nhanbt/todo-api/service/firebase"
 )
 
 func startSever() (*fiber.App, error) {
@@ -56,6 +57,12 @@ func main() {
 	routes.PublicRoutes(app)
 	routes.PrivateRoutes(app)
 	routes.NotFoundRoute(app)
+
+	/// Init Firebase client
+	err = firebase.InitFirebaseClient()
+	if err != nil {
+		log.Panicf("Error initializing firebase app: %v", err)
+	}
 
 	/// Start server
 	helpers.StartServer(app)

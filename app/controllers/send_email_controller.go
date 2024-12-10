@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/vfa-nhanbt/todo-api/app/models"
-	"github.com/vfa-nhanbt/todo-api/db/repositories"
+	"github.com/vfa-nhanbt/todo-api/app/db/repositories"
 	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
 )
