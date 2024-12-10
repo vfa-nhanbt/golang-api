@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"github.com/vfa-nhanbt/todo-api/app/models"
+	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
 	"gorm.io/gorm"
 )
 
@@ -36,6 +37,15 @@ func (r *BookRepository) GetBookByID(id string) (*models.BookModel, error) {
 func (r *BookRepository) GetAllBooks() ([]*models.BookModel, error) {
 	var books []*models.BookModel
 	err := r.DB.Preload("Author").Preload("Reviews").Find(&books).Error
+	if err != nil {
+		return nil, err
+	}
+	return books, nil
+}
+
+func (r *BookRepository) GetBookByPage(page int, limit int) ([]*models.BookModel, error) {
+	var books []*models.BookModel
+	err := r.DB.Preload("Author").Preload("Reviews").Scopes(helpers.NewPagination(page, limit).PaginatedResult).Find(&books).Error
 	if err != nil {
 		return nil, err
 	}

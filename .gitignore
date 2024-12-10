@@ -2,3 +2,4 @@
 .vscode
 __debug_*.exe
 __debug_*
+firebase-*.json

@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/vfa-nhanbt/todo-api/app/controllers"
 
+	"github.com/vfa-nhanbt/todo-api/app/controllers"
 	constant "github.com/vfa-nhanbt/todo-api/pkg/constants"
 	middleware "github.com/vfa-nhanbt/todo-api/pkg/middleware"
 	"github.com/vfa-nhanbt/todo-api/pkg/repositories"

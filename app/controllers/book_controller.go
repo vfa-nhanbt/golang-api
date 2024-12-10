@@ -1,10 +1,14 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/vfa-nhanbt/todo-api/app/models"
-	"github.com/vfa-nhanbt/todo-api/db/repositories"
+	"github.com/vfa-nhanbt/todo-api/app/db/repositories"
+
+	// "github.com/vfa-nhanbt/todo-api/pkg/constants"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
 
 	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
@@ -180,6 +184,29 @@ func (controller *BookController) GetBookByID(c *fiber.Ctx) error {
 	bookID := c.Params("id")
 
 	books, err := controller.Repository.GetBookByID(bookID)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+	/// Get all books success, return status OK
+	res := pkgRepo.BaseResponse{
+		Code:      "s-book-001",
+		IsSuccess: true,
+		Data:      books,
+	}
+	return c.Status(fiber.StatusOK).JSON(res.ToMap())
+}
+
+func (controller *BookController) GetBooksByPage(c *fiber.Ctx) error {
+	// limit := constants.DefaultPaginationDataLimit
+	queryParam := c.Queries()
+	pageQuery := queryParam["page"]
+	limitQuery := queryParam["limit"]
+	page, err := strconv.Atoi(pageQuery)
+	limit, err := strconv.Atoi(limitQuery)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+	books, err := controller.Repository.GetBookByPage(page, limit)
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}

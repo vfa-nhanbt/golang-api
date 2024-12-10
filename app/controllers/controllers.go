@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/vfa-nhanbt/todo-api/db"
-	"github.com/vfa-nhanbt/todo-api/db/repositories"
+	"github.com/vfa-nhanbt/todo-api/app/db"
+	"github.com/vfa-nhanbt/todo-api/app/db/repositories"
 )
 
 var authController *AuthController
