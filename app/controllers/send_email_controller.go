@@ -1,15 +1,17 @@
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/vfa-nhanbt/todo-api/app/models"
-	"github.com/vfa-nhanbt/todo-api/app/db/repositories"
 	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
+	"github.com/vfa-nhanbt/todo-api/service/mail"
 )
 
 type SendEmailController struct {
-	Repository *repositories.EmailRepository
+	Service *mail.EmailService
 }
 
 func (controller *SendEmailController) SendEmail(c *fiber.Ctx) error {
@@ -19,13 +21,14 @@ func (controller *SendEmailController) SendEmail(c *fiber.Ctx) error {
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
+	createBookModel := mail.CreateBookEmail{CreateBookModel: *email}
 
-	err = controller.Repository.SendEmail(email)
+	err = controller.Service.SendEmail(createBookModel)
 	if err != nil {
 		res := pkgRepo.BaseResponse{
 			Code:      "e-send-email-001",
 			IsSuccess: false,
-			Data:      "Some thing went wrong when sending email!",
+			Data:      fmt.Sprintf("Fail to send email! %v", err),
 		}
 		return c.Status(fiber.StatusBadRequest).JSON(res.ToMap())
 	}

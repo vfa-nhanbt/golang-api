@@ -17,8 +17,10 @@ func PublicRoutes(a *fiber.App) {
 	// route.Post("/test/add-followed-author", controllers.GetAuthController().AddFollowedAuthor)
 
 	/// Book Route
-
 	route.Get("/book/get-all", controllers.GetBookController().GetAllBooks)
 	route.Get("/book/get/id/:id", controllers.GetBookController().GetBookByID)
 	route.Get("/book/get/filter/", controllers.GetBookController().GetBooksByPage)
+
+	/// Mail Route
+	route.Post("/mail/send", controllers.GetSendEmailController().SendEmail)
 }

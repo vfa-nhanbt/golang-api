@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/vfa-nhanbt/todo-api/app/db"
 	"github.com/vfa-nhanbt/todo-api/app/db/repositories"
+	"github.com/vfa-nhanbt/todo-api/service/mail"
 )
 
 var authController *AuthController
@@ -50,6 +51,6 @@ func InitControllers(db *db.DBClient) {
 		Repository: reviewRepo,
 	}
 	sendEmailController = &SendEmailController{
-		Repository: &repositories.EmailRepository{},
+		Service: &mail.EmailService{},
 	}
 }

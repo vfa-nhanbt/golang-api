@@ -10,3 +10,8 @@ type CreateBookEmailModel struct {
 	BookUrl    string `json:"book_url"`
 	EmailModel
 }
+
+type WelcomeEmailModel struct {
+	EmailModel
+	UserName string `json:"user_name" validate:"required"`
+}
