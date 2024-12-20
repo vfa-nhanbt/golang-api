@@ -4,16 +4,18 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type UserModel struct {
-	ID           uuid.UUID  `gorm:"type:uuid;primaryKey" db:"id" json:"id" validate:"uuid"`
-	CreatedAt    *time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt    *time.Time `db:"updated_at" json:"updated_at"`
-	Email        string     `gorm:"size:255;uniqueIndex" db:"email" json:"email" validate:"email,lte=255"`
-	Name         string     `db:"name" json:"name"`
-	PasswordHash string     `db:"password_hash" json:"password_hash,omitempty" validate:"lte=255"`
-	UserRole     string     `db:"user_role" json:"user_role" validate:"userRole,lte=25"`
+	ID           uuid.UUID      `gorm:"type:uuid;primaryKey" db:"id" json:"id" validate:"uuid"`
+	CreatedAt    *time.Time     `db:"created_at" json:"created_at"`
+	UpdatedAt    *time.Time     `db:"updated_at" json:"updated_at"`
+	Email        string         `gorm:"size:255;uniqueIndex" db:"email" json:"email" validate:"email,lte=255"`
+	Name         string         `db:"name" json:"name"`
+	PasswordHash string         `db:"password_hash" json:"password_hash,omitempty" validate:"lte=255"`
+	UserRole     string         `db:"user_role" json:"user_role" validate:"userRole,lte=25"`
+	DeviceTokens pq.StringArray `gorm:"type:text[]" db:"device_tokens" json:"device_tokens" validate:"omitempty"`
 }
 
 func (*UserModel) TableName() string {

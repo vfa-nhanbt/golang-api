@@ -51,6 +51,7 @@ func (controller *AuthController) SignUpHandler(c *fiber.Ctx) error {
 		Name:         signUpBody.UserName,
 		UserRole:     signUpBody.Role,
 		PasswordHash: signUpBody.Password,
+		DeviceTokens: signUpBody.DeviceTokens,
 	}
 	err = controller.Repository.InsertUser(userModel)
 	if err != nil {

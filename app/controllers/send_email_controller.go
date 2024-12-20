@@ -7,7 +7,7 @@ import (
 	"github.com/vfa-nhanbt/todo-api/app/models"
 	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
-	"github.com/vfa-nhanbt/todo-api/service/mail"
+	"github.com/vfa-nhanbt/todo-api/services/mail"
 )
 
 type SendEmailController struct {

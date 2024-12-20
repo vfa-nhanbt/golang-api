@@ -23,4 +23,9 @@ func PublicRoutes(a *fiber.App) {
 
 	/// Mail Route
 	route.Post("/mail/send", controllers.GetSendEmailController().SendEmail)
+
+	/// Notification Route
+	route.Post("/notification/send", controllers.GetSendNotificationController().SendNotification)
+	route.Post("/notification/topic/subscribe", controllers.GetSendNotificationController().SubscribeToTopic)
+	route.Post("/notification/topic/unsubscribe", controllers.GetSendNotificationController().UnsubscribeToTopic)
 }

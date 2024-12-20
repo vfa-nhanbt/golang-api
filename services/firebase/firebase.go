@@ -3,8 +3,8 @@ package firebase
 import (
 	"context"
 
-	"firebase.google.com/go/v4/messaging"
 	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/messaging"
 	"google.golang.org/api/option"
 )
 
@@ -14,7 +14,7 @@ func InitFirebaseClient() error {
 	opt := option.WithCredentialsFile("firebase-golang-api-service-account.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
-		return  err
+		return err
 	}
 	firebaseClient = app
 	return nil

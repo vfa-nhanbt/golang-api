@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/vfa-nhanbt/todo-api/app/models"
 	"github.com/vfa-nhanbt/todo-api/app/db/repositories"
+	"github.com/vfa-nhanbt/todo-api/app/models"
 
 	// "github.com/vfa-nhanbt/todo-api/pkg/constants"
 	pkgRepo "github.com/vfa-nhanbt/todo-api/pkg/repositories"
@@ -57,8 +57,14 @@ func (controller *BookController) AddBookHandler(c *fiber.Ctx) error {
 		},
 	}
 
+	/// Get DB context for audit log
+	ctx, err := helpers.GetDBContext(c)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+
 	/// Insert book to DB
-	err = controller.Repository.InsertBook(bookModel)
+	err = controller.Repository.InsertBook(bookModel, ctx)
 	if err != nil {
 		res := pkgRepo.BaseResponse{
 			Code:      "e-book-001",
@@ -101,8 +107,14 @@ func (controller *BookController) DeleteBookWithID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(res.ToMap())
 	}
 
+	/// Get DB context for audit log
+	ctx, err := helpers.GetDBContext(c)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+
 	/// Delete book from DB
-	err = controller.Repository.DeleteBookWithID(bookId)
+	err = controller.Repository.DeleteBookWithID(bookId, ctx)
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
@@ -151,8 +163,14 @@ func (controller *BookController) UpdateBook(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(res.ToMap())
 	}
 
+	/// Get DB context for audit log
+	ctx, err := helpers.GetDBContext(c)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+
 	/// Update book
-	err = controller.Repository.UpdateBook(bookFromDB, updateBookRequest.StructToUnNilMap(updateBookRequest))
+	err = controller.Repository.UpdateBook(bookFromDB, updateBookRequest.StructToUnNilMap(updateBookRequest), ctx)
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}

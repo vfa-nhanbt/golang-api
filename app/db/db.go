@@ -82,6 +82,8 @@ func PostgresAutoMigrate(db *gorm.DB) error {
 		&models.BookModel{},
 		/// Migrate review models
 		&models.ReviewModel{},
+		/// Migrate audit log models
+		&models.LogModel{},
 	)
 	if err != nil {
 		return fmt.Errorf("cannot migrate table with error: %v", err)
