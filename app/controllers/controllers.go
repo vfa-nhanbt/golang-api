@@ -3,13 +3,15 @@ package controllers
 import (
 	"github.com/vfa-nhanbt/todo-api/app/db"
 	"github.com/vfa-nhanbt/todo-api/app/db/repositories"
-	"github.com/vfa-nhanbt/todo-api/service/mail"
+	"github.com/vfa-nhanbt/todo-api/services/firebase"
+	"github.com/vfa-nhanbt/todo-api/services/mail"
 )
 
 var authController *AuthController
 var bookController *BookController
 var reviewController *ReviewController
 var sendEmailController *SendEmailController
+var sendNotificationController *SendNotificationController
 
 func GetAuthController() *AuthController {
 	return authController
@@ -22,6 +24,9 @@ func GetReviewController() *ReviewController {
 }
 func GetSendEmailController() *SendEmailController {
 	return sendEmailController
+}
+func GetSendNotificationController() *SendNotificationController {
+	return sendNotificationController
 }
 
 func InitControllers(db *db.DBClient) {
@@ -52,5 +57,8 @@ func InitControllers(db *db.DBClient) {
 	}
 	sendEmailController = &SendEmailController{
 		Service: &mail.EmailService{},
+	}
+	sendNotificationController = &SendNotificationController{
+		Service: &firebase.FirebaseMessagingService{},
 	}
 }

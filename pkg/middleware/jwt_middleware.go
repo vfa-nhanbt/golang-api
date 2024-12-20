@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"strings"
 
@@ -8,22 +10,23 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	repository "github.com/vfa-nhanbt/todo-api/pkg/repositories"
+	"gorm.io/gorm"
 )
 
-func JWTProtected(allowedRoles []string) func(*fiber.Ctx) error {
+func JWTProtected(allowedRoles []string, db ...*gorm.DB) func(*fiber.Ctx) error {
 	config := jwtMiddleware.Config{
 		SigningKey:   jwtMiddleware.SigningKey{Key: []byte(os.Getenv("JWT_SECRET_KEY"))},
 		ContextKey:   "jwt",
 		ErrorHandler: handleJWTError,
 		SuccessHandler: func(c *fiber.Ctx) error {
-			return handleJWTSuccess(c, allowedRoles)
+			return handleJWTSuccess(c, allowedRoles, db...)
 		},
 	}
 
 	return jwtMiddleware.New(config)
 }
 
-func handleJWTSuccess(c *fiber.Ctx, allowedRoles []string) error {
+func handleJWTSuccess(c *fiber.Ctx, allowedRoles []string, db ...*gorm.DB) error {
 	/// Get current allowRoles from Claims
 	userToken := c.Locals("jwt").(*jwt.Token)
 	claims := userToken.Claims.(jwt.MapClaims)
@@ -41,6 +44,17 @@ func handleJWTSuccess(c *fiber.Ctx, allowedRoles []string) error {
 	/// Skip block
 	for _, allowedRole := range allowedRoles {
 		if strings.EqualFold(allowedRole, role) {
+			if len(db) > 0 {
+				userID, ok := claims["user_id"].(string)
+				if !ok {
+					fmt.Print("cannot get user_id from token for audit log")
+					return c.Next()
+				}
+				/// Set context for audit log
+				ctx := context.WithValue(db[0].Statement.Context, UserIDKey, userID)
+				c.Locals("DB", db[0].Session(&gorm.Session{Context: ctx}))
+			}
+
 			return c.Next()
 		}
 	}

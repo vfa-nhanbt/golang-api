@@ -33,6 +33,23 @@ func (r *UserRepository) FindUserByEmail(email string) (*models.UserModel, error
 	return nil, err
 }
 
+func (r *UserRepository) FindUserHasDeviceToken() ([]models.UserModel, error) {
+	var users []models.UserModel
+	err := r.DB.Raw(`
+		SELECT DISTINCT u.*
+		FROM user_models u
+		LEFT JOIN admin_models admin ON admin.user_id = u.id
+		LEFT JOIN author_models author ON author.user_id = u.id
+		LEFT JOIN viewer_models viewer ON viewer.user_id = u.id
+		WHERE u.device_tokens IS NOT NULL
+          AND array_length(u.device_tokens, 1) > 0
+	`).Scan(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 // / ----- Admin -----
 func (r *UserRepository) FindUserByID(id string) (*models.AdminModel, error) {
 	adminModel := models.AdminModel{}

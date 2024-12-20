@@ -11,9 +11,12 @@ import (
 	"github.com/lpernett/godotenv"
 	"github.com/vfa-nhanbt/todo-api/app/controllers"
 	"github.com/vfa-nhanbt/todo-api/app/db"
+	"github.com/vfa-nhanbt/todo-api/app/db/postgresql"
+	"github.com/vfa-nhanbt/todo-api/app/scheduler"
 	"github.com/vfa-nhanbt/todo-api/pkg/helpers"
+	"github.com/vfa-nhanbt/todo-api/pkg/middleware"
 	"github.com/vfa-nhanbt/todo-api/pkg/routes"
-	firebase "github.com/vfa-nhanbt/todo-api/service/firebase"
+	firebase "github.com/vfa-nhanbt/todo-api/services/firebase"
 )
 
 func startSever() (*fiber.App, error) {
@@ -53,15 +56,25 @@ func main() {
 	/// Auto migrate db
 	db.PostgresAutoMigrate(dbClient.PostgresGormDB)
 
+	middleware.FiberMiddleware(app, dbClient.PostgresGormDB)
+	postgresql.RegisterCallback(dbClient.PostgresGormDB)
+
 	/// Config router
 	routes.PublicRoutes(app)
-	routes.PrivateRoutes(app)
+	routes.PrivateRoutes(app, dbClient.PostgresGormDB)
 	routes.NotFoundRoute(app)
 
 	/// Init Firebase client
 	err = firebase.InitFirebaseClient()
 	if err != nil {
 		log.Panicf("Error initializing firebase app: %v", err)
+	}
+
+	/// Init job scheduler
+	job := scheduler.InitSendNotificationJob(dbClient)
+	err = scheduler.StartAppScheduler(job)
+	if err != nil {
+		log.Panicf("Error initializing job scheduler: %v", err)
 	}
 
 	/// Start server

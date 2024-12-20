@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -112,7 +113,10 @@ func verifyToken(c *fiber.Ctx) (*jwt.Token, error) {
 
 // ----- Read block end -----
 func GetUserIdFromToken(c *fiber.Ctx) (string, error) {
-	userToken := c.Locals("jwt").(*jwt.Token)
+	userToken, ok := c.Locals("jwt").(*jwt.Token)
+	if !ok {
+		return "", errors.New("failed to retrieve JWT token from context")
+	}
 	claims := userToken.Claims.(jwt.MapClaims)
 	userId, ok := claims["user_id"].(string)
 

@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 
 	"github.com/vfa-nhanbt/todo-api/app/controllers"
 	constant "github.com/vfa-nhanbt/todo-api/pkg/constants"
@@ -10,7 +11,7 @@ import (
 )
 
 // PrivateRoutes func for describe group of private routes
-func PrivateRoutes(a *fiber.App) {
+func PrivateRoutes(a *fiber.App, db *gorm.DB) {
 	// Create routes group
 	route := a.Group("/api/v1")
 
@@ -20,9 +21,9 @@ func PrivateRoutes(a *fiber.App) {
 	route.Get("/access-check/all", middleware.JWTProtected([]string{constant.RoleAdmin, constant.RoleViewer, constant.RoleAdmin}), checkAll)
 
 	/// Route for book api:
-	route.Post("/book/create", middleware.JWTProtected([]string{constant.RoleAuthor}), controllers.GetBookController().AddBookHandler)
-	route.Get("/book/delete/:id", middleware.JWTProtected([]string{constant.RoleAuthor, constant.RoleAdmin}), controllers.GetBookController().AddBookHandler)
-	route.Post("/book/update/:id", middleware.JWTProtected([]string{constant.RoleAuthor}), controllers.GetBookController().UpdateBook)
+	route.Post("/book/create", middleware.JWTProtected([]string{constant.RoleAuthor}, db), controllers.GetBookController().AddBookHandler)
+	route.Get("/book/delete/:id", middleware.JWTProtected([]string{constant.RoleAuthor, constant.RoleAdmin}, db), controllers.GetBookController().AddBookHandler)
+	route.Post("/book/update/:id", middleware.JWTProtected([]string{constant.RoleAuthor}, db), controllers.GetBookController().UpdateBook)
 
 	/// Route for review api:
 	route.Post("/review/create", middleware.JWTProtected([]string{constant.RoleViewer}), controllers.GetReviewController().AddReviewHandler)
