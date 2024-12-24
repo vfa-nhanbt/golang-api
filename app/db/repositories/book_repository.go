@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/vfa-nhanbt/todo-api/app/models"
@@ -65,9 +66,25 @@ func (r *BookRepository) GetRandomBook(ctx ...context.Context) (*models.BookMode
 	rand.NewSource(time.Now().UnixNano())
 	randomOffset := rand.Int63n(count)
 	book := models.BookModel{}
-	err = helpers.GetDB(r.DB, ctx...).Preload("Author").Offset(int(randomOffset)).First(&book).Error
+	err = helpers.GetDB(r.DB, ctx...).Preload("Author").Preload("Reviews").Offset(int(randomOffset)).First(&book).Error
 	if err != nil {
 		return nil, err
 	}
 	return &book, nil
+}
+
+func (r *BookRepository) SearchBooks(page int, limit int, query string, ctx ...context.Context) ([]*models.BookModel, error) {
+	var books []*models.BookModel
+	words := strings.Fields(query)
+	queryCommand := strings.Join(words, " & ")
+	err := helpers.GetDB(r.DB, ctx...).
+		Preload("Author").Preload("Reviews").
+		Scopes(helpers.NewPagination(page, limit).PaginatedResult).
+		Where("search_vector @@ to_tsquery('english', ?)", queryCommand).
+		Find(&books).Error
+
+	if err != nil {
+		return nil, err
+	}
+	return books, nil
 }

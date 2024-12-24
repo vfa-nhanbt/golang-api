@@ -20,6 +20,7 @@ func PublicRoutes(a *fiber.App) {
 	route.Get("/book/get-all", controllers.GetBookController().GetAllBooks)
 	route.Get("/book/get/id/:id", controllers.GetBookController().GetBookByID)
 	route.Get("/book/get/filter/", controllers.GetBookController().GetBooksByPage)
+	route.Get("/book/search/", controllers.GetBookController().SearchBooks)
 
 	/// Mail Route
 	route.Post("/mail/send", controllers.GetSendEmailController().SendEmail)

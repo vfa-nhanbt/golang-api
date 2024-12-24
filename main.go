@@ -44,6 +44,12 @@ func main() {
 		defer dbClient.MongoDB.Disconnect(context.Background())
 	}
 
+	/// Init Redis
+	err = helpers.InitRedis()
+	if err != nil {
+		log.Panic("Failed to connect to Redis")
+	}
+
 	/// Define Fiber App
 	app, err := startSever()
 	if err != nil {

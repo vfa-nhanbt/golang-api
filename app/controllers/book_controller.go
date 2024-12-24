@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -229,6 +232,57 @@ func (controller *BookController) GetBooksByPage(c *fiber.Ctx) error {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
 	/// Get all books success, return status OK
+	res := pkgRepo.BaseResponse{
+		Code:      "s-book-001",
+		IsSuccess: true,
+		Data:      books,
+	}
+	return c.Status(fiber.StatusOK).JSON(res.ToMap())
+}
+
+func (controller *BookController) SearchBooks(c *fiber.Ctx) error {
+	queryParam := c.Queries()
+	pageQuery := queryParam["page"]
+	limitQuery := queryParam["limit"]
+	query := queryParam["q"]
+	page, err := strconv.Atoi(pageQuery)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+	limit, err := strconv.Atoi(limitQuery)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+
+	var books []*models.BookModel
+
+	/// Check books from redis
+	cachedKey := fmt.Sprintf("search:books:%s:page:%s:limit:%s", query, pageQuery, limitQuery)
+	cachedResult, err := helpers.GetRedisClient().Get(helpers.GetContextFromFiber(c), cachedKey).Result()
+	if err != nil && cachedResult != "" {
+		err = json.Unmarshal([]byte(cachedResult), &books)
+		if err == nil {
+			res := pkgRepo.BaseResponse{
+				Code:      "s-book-001",
+				IsSuccess: true,
+				Data:      books,
+			}
+			return c.Status(fiber.StatusOK).JSON(res.ToMap())
+		}
+	}
+
+	books, err = controller.Repository.SearchBooks(page, limit, query)
+	if err != nil {
+		return pkgRepo.BaseErrorResponse(c, err)
+	}
+
+	/// Cache books to redis
+	data, _ := json.Marshal(books)
+	err = helpers.GetRedisClient().Set(helpers.GetContextFromFiber(c), cachedKey, data, 5*time.Minute).Err()
+	if err != nil {
+		fmt.Printf("Error caching books to redis: %v", err)
+	}
+
 	res := pkgRepo.BaseResponse{
 		Code:      "s-book-001",
 		IsSuccess: true,
