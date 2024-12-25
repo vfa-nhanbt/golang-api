@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/lpernett/godotenv"
 	"github.com/vfa-nhanbt/todo-api/app/controllers"
 	"github.com/vfa-nhanbt/todo-api/app/db"
 	"github.com/vfa-nhanbt/todo-api/app/db/postgresql"
@@ -31,9 +30,9 @@ func startSever() (*fiber.App, error) {
 }
 
 func main() {
-	if err := godotenv.Load(".env.dev"); err != nil {
-		log.Panic("No env file found")
-	}
+	// if err := godotenv.Load(".env.dev"); err != nil {
+	// 	log.Panic("No env file found")
+	// }
 
 	/// Connect to DB
 	dbClient, err := db.ConnectToDB()
