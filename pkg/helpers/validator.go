@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"fmt"
 	"strings"
 	"unicode"
 
@@ -95,10 +94,6 @@ func userRoleValidator(fl validator.FieldLevel) bool {
 }
 
 func updatePriceValidator(fl validator.FieldLevel) bool {
-	fmt.Print(fl.Field())
-	if fl.Field().IsNil() {
-		return true
-	}
 	if price := fl.Field().Int(); price >= 0 {
 		return true
 	}

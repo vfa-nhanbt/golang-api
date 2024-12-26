@@ -77,6 +77,8 @@ func (controller *BookController) AddBookHandler(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(res.ToMap())
 	}
 
+	helpers.DeleteCachedWithKey("search:books*")
+
 	/// Insert success, return status OK
 	res := pkgRepo.BaseResponse{
 		Code:      "s-book-001",
@@ -121,6 +123,8 @@ func (controller *BookController) DeleteBookWithID(c *fiber.Ctx) error {
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
+
+	helpers.DeleteCachedWithKey("search:books*")
 
 	/// Delete success, return status OK
 	res := pkgRepo.BaseResponse{
@@ -177,6 +181,8 @@ func (controller *BookController) UpdateBook(c *fiber.Ctx) error {
 	if err != nil {
 		return pkgRepo.BaseErrorResponse(c, err)
 	}
+
+	helpers.DeleteCachedWithKey("search:books*")
 
 	/// Update success, return status OK
 	res := pkgRepo.BaseResponse{
@@ -259,7 +265,7 @@ func (controller *BookController) SearchBooks(c *fiber.Ctx) error {
 	/// Check books from redis
 	cachedKey := fmt.Sprintf("search:books:%s:page:%s:limit:%s", query, pageQuery, limitQuery)
 	cachedResult, err := helpers.GetRedisClient().Get(helpers.GetContextFromFiber(c), cachedKey).Result()
-	if err != nil && cachedResult != "" {
+	if err == nil && cachedResult != "" {
 		err = json.Unmarshal([]byte(cachedResult), &books)
 		if err == nil {
 			res := pkgRepo.BaseResponse{

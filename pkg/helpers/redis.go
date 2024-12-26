@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -31,6 +32,31 @@ func InitRedis() error {
 	_, err = RedisClient.Ping(context.Background()).Result()
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func DeleteCachedWithKey(cachedKey string) error {
+	var cursor uint64
+	for {
+		keys, cursor, err := RedisClient.Scan(context.Background(), cursor, cachedKey, 10).Result()
+		if err != nil {
+			errorS := fmt.Sprintf("Error scanning keys: %s", err)
+			return errors.New(errorS)
+		}
+		for _, key := range keys {
+			err := RedisClient.Del(context.Background(), key).Err()
+			if err != nil {
+				errorS := fmt.Sprintf("Error deleting key: %s - %s", key, err)
+				return errors.New(errorS)
+			} else {
+				fmt.Println("Deleted key: ", key)
+			}
+		}
+
+		if cursor == 0 {
+			break
+		}
 	}
 	return nil
 }
