@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -17,18 +16,24 @@ func GetRedisClient() *redis.Client {
 }
 
 func InitRedis() error {
-	redisHost := os.Getenv("REDIS_HOST")
-	redisPort := os.Getenv("REDIS_PORT")
-	redisPassword := os.Getenv("REDIS_PASSWORD")
-	redisDB, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+	// redisHost := os.Getenv("REDIS_HOST")
+	// redisPort := os.Getenv("REDIS_PORT")
+	// redisPassword := os.Getenv("REDIS_PASSWORD")
+	// redisDB, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+	// if err != nil {
+	// 	return err
+	// }
+	// RedisClient = redis.NewClient(&redis.Options{
+	// 	Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
+	// 	Password: redisPassword,
+	// 	DB:       redisDB,
+	// })
+	redisRailwayUrl := os.Getenv("REDIS_RAILWAY_URL")
+	redisOption, err := redis.ParseURL(redisRailwayUrl)
 	if err != nil {
 		return err
 	}
-	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
-		Password: redisPassword,
-		DB:       redisDB,
-	})
+	RedisClient = redis.NewClient(redisOption)
 	_, err = RedisClient.Ping(context.Background()).Result()
 	if err != nil {
 		return err

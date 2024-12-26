@@ -49,19 +49,29 @@ func connectToMongoDB() (*DBClient, error) {
 
 func connectToPostgres() (*DBClient, error) {
 	/// Get the database connection settings from env
-	host := os.Getenv("POSTGRES_HOST")
-	username := os.Getenv("POSTGRES_USERNAME")
-	password := os.Getenv("POSTGRES_PASSWORD")
-	port := os.Getenv("POSTGRES_PORT")
-	dbname := os.Getenv("POSTGRES_NAME")
+	// host := os.Getenv("POSTGRES_HOST")
+	// username := os.Getenv("POSTGRES_USERNAME")
+	// password := os.Getenv("POSTGRES_PASSWORD")
+	// port := os.Getenv("POSTGRES_PORT")
+	// dbname := os.Getenv("POSTGRES_NAME")
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos", host, username, password, dbname, port)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Africa/Lagos", host, username, password, dbname, port)
+	databaseUrl := os.Getenv("POSTGRES_RAILWAY_URL")
+	db, err := gorm.Open(postgres.Open(databaseUrl), &gorm.Config{
 		QueryFields: true,
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Failed to get database instance: %v", err)
+	}
+	if err := sqlDB.Ping(); err != nil {
+		log.Fatalf("Failed to ping the database: %v", err)
+	}
+	fmt.Println("Connected to the database successfully!")
 
 	return &DBClient{
 		PostgresGormDB: db,
